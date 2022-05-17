@@ -8,17 +8,18 @@ const Register = ({ onRegister }) => {
   });
 
   const handleChange = (e) => {
-    const { value, name } = e.target;
+    const { name, value } = e.target;
     setState({ ...state, [name]: value });
   };
 
   function handleSubmit(e) {
     e.preventDefault();
-    console.log("логин:", state);
-    if (onRegister) {
-      const {email, password} = state;
-      onRegister({email, password});
-    } // здесь обработчик регистрации
+    console.log("state:", state);
+      // const {email, password} = state;
+      onRegister({
+        email: state.email, 
+        password: state.password});
+     // здесь обработчик регистрации
   }
 
   return (
@@ -45,6 +46,7 @@ const Register = ({ onRegister }) => {
           value={state.password || ""}
           onChange={handleChange}
           placeholder="Пароль"
+          autoComplete="on"
         />
         <span id="register-password-error" className="error"></span>
 

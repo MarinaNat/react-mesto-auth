@@ -15,7 +15,7 @@ import Register from "./Register";
 import ProtectedRoute from "./ProtectedRoute";
 import InfoTooltip from "./InfoTooltip";
 //import * as Auth from "../utils/Auth";
-import * as Auth from "../utils/Auth";
+import * as auth from "../utils/auth";
 
 function App() {
   const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] =
@@ -117,24 +117,26 @@ function App() {
       });
   }
 
-  function handleAddPlaceSubmit(data) {
-    api
-      .addCard(data)
-      .then((newCard) => {
-        setCards([newCard, ...cards]);
-        closeAllPopups();
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  }
+  // function handleAddPlaceSubmit(data) {
+  //   api
+  //     .addCard(data)
+  //     .then((newCard) => {
+  //       setCards([newCard, ...cards]);
+  //       closeAllPopups();
+  //     })
+  //     .catch((err) => {
+  //       console.log(err);
+  //     });
+  // }
 
   const handleRegister = (email, password) => {
-    Auth.register(email, password);
+    auth.register(email, password)
     // .then((res) => {
     //   if (res.ok) {
-    // navigate('/singin');
-    //     setRegistrationResult(true);
+    // navigate('/sing-in', {
+    //   setRegistrationResult: true
+    // })
+       
     //   }
     // })
     // .catch((err) => {
@@ -149,7 +151,7 @@ function App() {
         <Header />
         <Routes>
           <Route
-            path="/"
+            path="/" exact
             element={
               <ProtectedRoute
                 exact
@@ -168,7 +170,10 @@ function App() {
 
           <Route
             path="/sign-up"
-            element={<Register onRegister={handleRegister} />}
+            element={<Register 
+              onRegister={handleRegister} 
+              />
+            }
           ></Route>
           <Route path="/sign-in" element={<Login />}></Route>
           <Route
@@ -205,7 +210,7 @@ function App() {
         <AddPlacePopup
           isOpen={isAddPlacePopupOpen}
           onClose={closeAllPopups}
-          onAddPlace={handleAddPlaceSubmit}
+          // onAddPlace={handleAddPlaceSubmit}
         />
 
         <PopupWithForm
