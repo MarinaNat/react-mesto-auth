@@ -12,7 +12,7 @@ function PopupOutOfForm(props) {
         <button
           onClick={props.onClose}
           className="popup__close-btn close-btn"
-          type="button"
+          type="reset"
           aria-label="Закрыть"
         ></button>
       </div>

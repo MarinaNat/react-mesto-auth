@@ -1,52 +1,40 @@
 const BASE_URL = "https://auth.nomoreparties.co";
 
-// export const getContent = (jwt) => {
-//   return fetch(`${BASE_URL}/users/me`, {
-//     method: "GET",
-//     headers: {
-//       "Content-Type": "application/json",
-//       'Authorization': `${jwt}`,
-//     }
-//   })
-//   .then((res) => {
-//     console.log(`getContent: response: ${res}`);
-//     return res.json();
-//   })
-// }
-
 function cheeckResponse(promise) {
+  // console.log('response', res.json())
   return promise.then((res) => {
     return (res.status === 200) ? res.json() : Promise.reject(`Ошибка: ${res.status}`);
   })
   }
 
 export const register = (email, password) => {
-  console.log('register:', email, password)
-  return  fetch(`${BASE_URL}/signup`, {
+  console.log('in auth-register:', email, password)
+  const promise = fetch(`${BASE_URL}/signup`, {
     method: "POST",
     headers: {
       'Accept': 'application/json',
       "Content-Type": "application/json",
     },
     body: JSON.stringify({email, password})
-  })
-  .then(res => {
-    console.log('response', res.json())
-  })
-  // return cheeckResponse(promise);
+  });
+  // .then(cheeckResponse(promise) )
+  return cheeckResponse(promise);
 }
 
-// export const authorize = (email, password) => {
-//   return fetch(`${BASE_URL}/signin`, {
-//     method: "POST",
-//     headers: {
-//       "Content-Type": "application/json"
-//     },
-//     body: JSON.stringify({
-//       email,
-//       password,
-//     }),
-//   })
+export const authorize = (email, password) => {
+  const promise = fetch(`${BASE_URL}/signin`, {
+    method: "POST",
+    headers: {
+      'Accept': "application/json",
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      email,
+      password,
+    }),
+  })
+  return cheeckResponse(promise);
+}
 //   .then((response) => {
 //     if(response.status === 400) {
 //       return "не передано одно из полей"
@@ -65,3 +53,17 @@ export const register = (email, password) => {
 
   
 // }
+
+export const checkToken = (token) => {
+  console.log('in auth-checkToken', token)
+  const promise = fetch(`${BASE_URL}/users/me`, {
+    method: "GET",
+    headers: {
+      // 'Accept': 'application/json',
+      "Content-Type": "application/json",
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+  return cheeckResponse(promise);
+};
+

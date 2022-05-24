@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Route, Routes, Navigate, useNavigate } from "react-router-dom";
 import Header from "./Header";
 import Main from "./Main";
@@ -14,6 +14,8 @@ import Login from "./Login";
 import Register from "./Register";
 import ProtectedRoute from "./ProtectedRoute";
 import InfoTooltip from "./InfoTooltip";
+import unionOk from "../images/unionOk.svg";
+import unionFalse from "../images/unionFalse.svg";
 //import * as Auth from "../utils/Auth";
 import * as auth from "../utils/auth";
 
@@ -27,19 +29,31 @@ function App() {
   const [currentUser, setCurrentUser] = React.useState({});
   const [cards, setCards] = React.useState([]);
   const [loggedIn, setLoggedIn] = React.useState(false);
-  const [registrationResult, setRegistrationResult] = React.useState(false);
+  // const [registrationResult, setRegistrationResult] = React.useState(false);
   const [isInfoTooltipOpen, setIsInfoTooltipOpen] = React.useState(false);
+  // const [userData, setUserData] = React.useState({
+  //   email: "",
+  //   password: "",
+  // });
+  const [email, setEmail] = useState("");
   const navigate = useNavigate();
+  const [tooltipData, setTooltipData] = useState({ img: "", title: "" });
 
   React.useEffect(() => {
-    Promise.all([api.getUserInfo(), api.getCard()])
-      .then(([data, cards]) => {
-        setCurrentUser(data);
-        setCards(cards);
-      }) // тут ловим ошибку
-      .catch((err) => {
-        console.log(err);
-      });
+    if (loggedIn) {
+      Promise.all([api.getUserInfo(), api.getCard()])
+        .then(([data, cards]) => {
+          setCurrentUser(data);
+          setCards(cards);
+        }) // тут ловим ошибку
+        .catch((err) => {
+          console.log(err);
+        });
+    }
+  }, [loggedIn]);
+
+  useEffect(() => {
+    checkToken();
   }, []);
 
   const handleEditProfileClick = () => {
@@ -86,13 +100,6 @@ function App() {
       });
   };
 
-  const closeAllPopups = () => {
-    setIsEditProfilePopupOpen(false);
-    setIsEditAvatarPopupOpen(false);
-    setIsAddPlacePopupOpen(false);
-    setSelectedCard({});
-  };
-
   function handleUpdateUser(userData) {
     api
       .setUserInfo(userData)
@@ -129,32 +136,145 @@ function App() {
   //     });
   // }
 
-  const handleRegister = (email, password) => {
-    auth.register(email, password)
-    // .then((res) => {
-    //   if (res.ok) {
-    // navigate('/sing-in', {
-    //   setRegistrationResult: true
-    // })
-       
-    //   }
-    // })
-    // .catch((err) => {
-    //   setRegistrationResult(false);
-    //   console.log(err)
-    // })
+  const checkToken = () => {
+    const token = localStorage.getItem("token");
+    console.log("in app-checkToken:", token);
+    if (token) {
+      auth
+        .checkToken(token)
+        .then((res) => {
+          if (res) {
+            console.log("in app-checkToken-then:", res);
+            setEmail(res.data.email);
+            setLoggedIn(true);
+            navigate("/");
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
+  };
+
+  const handleRegister = ({ email, password }) => {
+    console.log("in app-register1", email, password);
+    auth
+      .register(email, password)
+      .then((res) => {
+        console.log("in app-register-then", res);
+        setTooltipData({
+          img: unionOk,
+          title: "Вы успешно зарегистрировались!",
+        });
+        // setRegistrationResult(true);
+        navigate("/sing-in");
+      })
+      .catch(() => {
+        setTooltipData({
+          img: unionFalse,
+          title: "Что-то пошло не так! Попробуйте ещё раз.",
+        });
+        // setRegistrationResult(false);
+      })
+      .finally(() => {
+        setIsInfoTooltipOpen(true);
+      });
+  };
+
+  const handleLogin = ({ email, password }) => {
+      console.log("in handleLogin:", email, password);
+      auth
+        .authorize(email, password)
+        .then((res) => {
+          console.log("in handleLogin-authorize:", res);
+          localStorage.setItem("token", res.token);
+        })
+        .then((token) => {
+          auth
+            .checkToken(token)
+            .then((res) => {
+              setEmail(res.data.email);
+              setLoggedIn(true);
+              navigate("/");
+            })
+            .catch((err) => {
+              console.log(err);
+            });
+        })
+        .catch(() => {
+          setTooltipData({
+            img: unionFalse,
+            title: "Что-то пошло не так! Попробуйте ещё раз.",
+          });
+          setIsInfoTooltipOpen(true)
+          // setRegistrationResult(false);
+        });
+    };
+
+
+
+
+
+  // const handleLogin = ({ email, password }) => {
+  //   console.log("in handleLogin:", email, password);
+  //   auth
+  //     .authorize(email, password)
+  //     .then((res) => {
+  //       console.log("in handleLogin-authorize:", res);
+  //       localStorage.setItem("token", res.token);
+  //     })
+  //     .then((token) => {
+  //       auth
+  //         .checkToken(token)
+  //         .then((res) => {
+  //           setEmail(res.data.email);
+  //           setLoggedIn(true);
+  //           navigate("/");
+  //         })
+  //         // localStorage.setItem("token", res.token);
+  //         // setLoggedIn(true);
+  //         // navigate("/");
+  //         .catch((err) => {
+  //           console.log(err);
+  //         });
+  //     })
+  //     .catch(() => {
+  //       setTooltipData({
+  //         img: unionFalse,
+  //         title: "Что-то пошло не так! Попробуйте ещё раз.",
+  //       });
+  //       setRegistrationResult(false);
+  //     });
+  // };
+
+  const onSignOut = () => {
+    localStorage.removeItem("token");
+    setLoggedIn(false);
+  };
+
+  const closeAllPopups = () => {
+    setIsEditProfilePopupOpen(false);
+    setIsEditAvatarPopupOpen(false);
+    setIsAddPlacePopupOpen(false);
+    setSelectedCard({});
+    setIsInfoTooltipOpen(false)
   };
 
   return (
     <CurrentUserContext.Provider value={currentUser}>
       <div className="page">
-        <Header />
+        <Header
+          loggedIn={loggedIn}
+          // userData={userData}
+          onSignOut={onSignOut}
+          email={email}
+        />
         <Routes>
           <Route
-            path="/" exact
+            path="/"
             element={
               <ProtectedRoute
-                exact
+                path="/"
                 loggedIn={loggedIn}
                 component={Main}
                 onEditAvatar={handleEditAvatarClick}
@@ -170,19 +290,13 @@ function App() {
 
           <Route
             path="/sign-up"
-            element={<Register 
-              onRegister={handleRegister} 
-              />
-            }
+            element={<Register onRegister={handleRegister} />}
           ></Route>
-          <Route path="/sign-in" element={<Login />}></Route>
           <Route
-            exact
-            path="/"
-            element={
-              loggedIn ? <Navigate to="/sign-in" /> : <Navigate to="/sign-up" />
-            }
+            path="/sign-in"
+            element={<Login onLogin={handleLogin} />}
           ></Route>
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
         {/* <Main
           onEditAvatar={handleEditAvatarClick}
@@ -221,9 +335,11 @@ function App() {
 
         <InfoTooltip
           name="InfoTooltip"
-          isOpen={isInfoTooltipOpen}
           onClose={closeAllPopups}
-          registrationResult={registrationResult}
+          isOpen={isInfoTooltipOpen}
+          // registrationResult={setRegistrationResult}
+          title={tooltipData.title}
+          img={tooltipData.img}
         />
 
         <ImagePopup card={selectedCard} onClose={closeAllPopups} />

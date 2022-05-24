@@ -2,24 +2,24 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
 const Register = ({ onRegister }) => {
-  const [state, setState] = useState({
-    email: "",
-    password: "",
-  });
+  const [state, setState] = React.useState({});
 
-  const handleChange = (e) => {
+  function handleChange(e) {
     const { name, value } = e.target;
-    setState({ ...state, [name]: value });
-  };
+    setState((prev) => ({ ...prev, [name]: value }));
+  }
 
   function handleSubmit(e) {
     e.preventDefault();
-    console.log("state:", state);
-      // const {email, password} = state;
+    console.log("in Register-handleSubmit", state);
+    //  const {email, password} = state;
+    if (onRegister && state.email && state.password) {
       onRegister({
-        email: state.email, 
-        password: state.password});
-     // здесь обработчик регистрации
+        email: state.email,
+        password: state.password,
+      });
+    }
+    // здесь обработчик регистрации
   }
 
   return (
