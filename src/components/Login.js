@@ -1,19 +1,25 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+// import { Link } from "react-router-dom";
 
 const Login = ({onLogin}) => {
-  const [login, setLogin] = useState({email:'', password:''})
+  const [login, setLogin] = useState({})
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setLogin({ ...login,[name]: value});
-  };
+  function handleChange(event) {
+    const { name, value } = event.target
+    setLogin((prev) => ({
+        ...prev,
+        [name]: value
+    }))
+}
+
+  // const handleChange = (e) => {
+  //   const { name, value } = e.target;
+  //   setLogin({ ...login,[name]: value});
+  // };
 
 function handleSubmit(e) {
     e.preventDefault();
-      onLogin({
-        email: login.email, 
-        password: login.password})
+      onLogin( login.email, login.password)
     }
 
 

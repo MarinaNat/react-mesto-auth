@@ -39,6 +39,10 @@ function App() {
   const navigate = useNavigate();
   const [tooltipData, setTooltipData] = useState({ img: "", title: "" });
 
+  useEffect(() => {
+    checkToken();
+  }, []);
+
   React.useEffect(() => {
     if (loggedIn) {
       Promise.all([api.getUserInfo(), api.getCard()])
@@ -52,9 +56,7 @@ function App() {
     }
   }, [loggedIn]);
 
-  useEffect(() => {
-    checkToken();
-  }, []);
+  
 
   const handleEditProfileClick = () => {
     setIsEditProfilePopupOpen(true);
@@ -124,19 +126,19 @@ function App() {
       });
   }
 
-  // function handleAddPlaceSubmit(data) {
-  //   api
-  //     .addCard(data)
-  //     .then((newCard) => {
-  //       setCards([newCard, ...cards]);
-  //       closeAllPopups();
-  //     })
-  //     .catch((err) => {
-  //       console.log(err);
-  //     });
-  // }
+  function handleAddPlaceSubmit(data) {
+    api
+      .addCard(data)
+      .then((newCard) => {
+        setCards([newCard, ...cards]);
+        closeAllPopups();
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }
 
-  const checkToken = () => {
+  function checkToken() {
     const token = localStorage.getItem("token");
     console.log("in app-checkToken:", token);
     if (token) {
@@ -156,7 +158,7 @@ function App() {
     }
   };
 
-  const handleRegister = ({ email, password }) => {
+  function handleRegister( email, password ) {
     console.log("in app-register1", email, password);
     auth
       .register(email, password)
@@ -181,18 +183,22 @@ function App() {
       });
   };
 
-  const handleLogin = ({ email, password }) => {
+  function handleLogin(email, password ) {
       console.log("in handleLogin:", email, password);
       auth
         .authorize(email, password)
         .then((res) => {
-          console.log("in handleLogin-authorize:", res);
+          console.log("in handleLogin-authorize:", res.token);
           localStorage.setItem("token", res.token);
         })
-        .then((token) => {
+        .then(() => {
+          const token = localStorage.getItem('token');
+          console.log('token', token)
+          token &&
           auth
             .checkToken(token)
             .then((res) => {
+              console.log('переход')
               setEmail(res.data.email);
               setLoggedIn(true);
               navigate("/");
@@ -210,42 +216,6 @@ function App() {
           // setRegistrationResult(false);
         });
     };
-
-
-
-
-
-  // const handleLogin = ({ email, password }) => {
-  //   console.log("in handleLogin:", email, password);
-  //   auth
-  //     .authorize(email, password)
-  //     .then((res) => {
-  //       console.log("in handleLogin-authorize:", res);
-  //       localStorage.setItem("token", res.token);
-  //     })
-  //     .then((token) => {
-  //       auth
-  //         .checkToken(token)
-  //         .then((res) => {
-  //           setEmail(res.data.email);
-  //           setLoggedIn(true);
-  //           navigate("/");
-  //         })
-  //         // localStorage.setItem("token", res.token);
-  //         // setLoggedIn(true);
-  //         // navigate("/");
-  //         .catch((err) => {
-  //           console.log(err);
-  //         });
-  //     })
-  //     .catch(() => {
-  //       setTooltipData({
-  //         img: unionFalse,
-  //         title: "Что-то пошло не так! Попробуйте ещё раз.",
-  //       });
-  //       setRegistrationResult(false);
-  //     });
-  // };
 
   const onSignOut = () => {
     localStorage.removeItem("token");
@@ -298,15 +268,7 @@ function App() {
           ></Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
-        {/* <Main
-          onEditAvatar={handleEditAvatarClick}
-          onEditProfile={handleEditProfileClick}
-          onAddPlace={handleAddPlaceClick}
-          onCardClick={handleCardClick}
-          onCardLike={handleCardLike}
-          onCardDelete={handleCardDelete}
-          cards={cards}
-        /> */}
+
         <Footer />
 
         <EditProfilePopup
@@ -324,7 +286,7 @@ function App() {
         <AddPlacePopup
           isOpen={isAddPlacePopupOpen}
           onClose={closeAllPopups}
-          // onAddPlace={handleAddPlaceSubmit}
+          onAddPlace={handleAddPlaceSubmit}
         />
 
         <PopupWithForm

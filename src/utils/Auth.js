@@ -1,40 +1,43 @@
-const BASE_URL = "https://auth.nomoreparties.co";
+export const BASE_URL = "https://auth.nomoreparties.co";
 
-function cheeckResponse(promise) {
-  // console.log('response', res.json())
+function checkResponse(promise) {
+  // console.log('function checkResponse ()', promise)
   return promise.then((res) => {
-    return (res.status === 200) ? res.json() : Promise.reject(`Ошибка: ${res.status}`);
-  })
-  }
+    // return res.status === 200
+    return res.ok
+      ? res.json()
+      : Promise.reject(`Ошибка: ${res.status}`);
+  });
+}
 
 export const register = (email, password) => {
-  console.log('in auth-register:', email, password)
+  console.log("in auth-register:", email, password);
   const promise = fetch(`${BASE_URL}/signup`, {
     method: "POST",
     headers: {
-      'Accept': 'application/json',
+      Accept: "application/json",
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({email, password})
+    body: JSON.stringify({ email, password }),
   });
   // .then(cheeckResponse(promise) )
-  return cheeckResponse(promise);
-}
+  return checkResponse(promise);
+};
 
 export const authorize = (email, password) => {
   const promise = fetch(`${BASE_URL}/signin`, {
     method: "POST",
     headers: {
-      'Accept': "application/json",
-      "Content-Type": "application/json"
+      Accept: "application/json",
+      "Content-Type": "application/json",
     },
     body: JSON.stringify({
       email,
       password,
     }),
-  })
-  return cheeckResponse(promise);
-}
+  });
+  return checkResponse(promise);
+};
 //   .then((response) => {
 //     if(response.status === 400) {
 //       return "не передано одно из полей"
@@ -51,19 +54,61 @@ export const authorize = (email, password) => {
 //     console.log(`user id: ${data.id}`)
 //   })
 
-  
 // }
 
 export const checkToken = (token) => {
-  console.log('in auth-checkToken', token)
+  console.log("in auth-checkToken", token);
   const promise = fetch(`${BASE_URL}/users/me`, {
     method: "GET",
     headers: {
-      // 'Accept': 'application/json',
-      "Content-Type": "application/json",
-      'Authorization': `Bearer ${token}`,
+      authorization: `Bearer ${token}`,
     },
   });
-  return cheeckResponse(promise);
+  return checkResponse(promise);
 };
 
+// function checkResponse(res) {
+//   if (res.ok) {
+//       return res.json();
+//   }
+//   return Promise.reject(`Ошибка: ${res.status}`);
+// }
+
+// export const register = (password, email) => {
+//   return fetch(`${BASE_URL}/signup`, {
+//       method: 'POST',
+//       headers: {
+//           "Content-Type": "application/json"
+//       },
+//       body: JSON.stringify({password, email})
+//   })
+//       .then(checkResponse)
+// };
+
+// export const authorize = (password, email) => {
+//   return fetch(`${BASE_URL}/signin`, {
+//       method: 'POST',
+//       headers: {
+//           "Content-Type": "application/json"
+//       },
+//       body: JSON.stringify({password, email})
+//   })
+//       .then(checkResponse)
+//       .then((data) => {
+//           if (data.token) {
+//               localStorage.setItem('token', data.token);
+//               return data.token;
+//           }
+//       })
+// };
+
+// export const checkToken = (token) => {
+//   return fetch(`${BASE_URL}/users/me`, {
+//       method: 'GET',
+//       headers: {
+//           "Content-Type": "application/json",
+//           "Authorization": `Bearer ${token}`
+//       }
+//   })
+//       .then(checkResponse)
+// };

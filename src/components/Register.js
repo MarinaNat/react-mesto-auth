@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
 const Register = ({ onRegister }) => {
-  const [state, setState] = React.useState({});
+  const [state, setState] = useState({});
 
   function handleChange(e) {
     const { name, value } = e.target;
@@ -14,10 +14,7 @@ const Register = ({ onRegister }) => {
     console.log("in Register-handleSubmit", state);
     //  const {email, password} = state;
     if (onRegister && state.email && state.password) {
-      onRegister({
-        email: state.email,
-        password: state.password,
-      });
+      onRegister( state.email, state.password );
     }
     // здесь обработчик регистрации
   }
