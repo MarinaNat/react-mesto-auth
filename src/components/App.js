@@ -15,8 +15,7 @@ import Register from "./Register";
 import ProtectedRoute from "./ProtectedRoute";
 import InfoTooltip from "./InfoTooltip";
 import unionOk from "../images/unionOk.svg";
-import unionFalse from "../images/unionFalse.svg";
-//import * as Auth from "../utils/Auth";
+import unionFalse from "../images/unionFalse.svg";;
 import * as auth from "../utils/auth";
 
 function App() {
