@@ -3,8 +3,7 @@ import { useLocation, Link } from "react-router-dom";
 import headerLogo from "./../images/logo.svg";
 
 function Header({ email, onSignOut }) {
-  // let {email, password} = userData || {};
-  let location = useLocation();
+  const location = useLocation();
 
   return (
     <header className="header">

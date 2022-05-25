@@ -3,11 +3,16 @@ import { CurrentUserContext } from "../contexts/CurrentUserContext";
 import Card from "./Card";
 // import api from "../utils/Api";
 
-function Main({ onEditProfile, onAddPlace, onEditAvatar, onCardClick, onCardLike, cards, onCardDelete }) {
-
+function Main({
+  onEditProfile,
+  onAddPlace,
+  onEditAvatar,
+  onCardClick,
+  onCardLike,
+  cards,
+  onCardDelete,
+}) {
   const currentUser = React.useContext(CurrentUserContext);
-
-  
 
   return (
     <main className="content">
@@ -44,12 +49,12 @@ function Main({ onEditProfile, onAddPlace, onEditAvatar, onCardClick, onCardLike
       </section>
       <section className="elements">
         {cards.map((card) => (
-          <Card 
-          key={card._id} 
-          card={card} 
-          onCardClick={onCardClick} 
-          onCardLike={onCardLike}
-          onCardDelete={onCardDelete}
+          <Card
+            key={card._id}
+            card={card}
+            onCardClick={onCardClick}
+            onCardLike={onCardLike}
+            onCardDelete={onCardDelete}
           />
         ))}
       </section>

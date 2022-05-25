@@ -16,7 +16,8 @@ import ProtectedRoute from "./ProtectedRoute";
 import InfoTooltip from "./InfoTooltip";
 import unionOk from "../images/unionOk.svg";
 import unionFalse from "../images/unionFalse.svg";
-import * as auth from "../utils/auth";
+
+import * as auth from "../utils/Auth";
 
 function App() {
   const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] =
@@ -28,15 +29,15 @@ function App() {
   const [currentUser, setCurrentUser] = React.useState({});
   const [cards, setCards] = React.useState([]);
   const [loggedIn, setLoggedIn] = React.useState(false);
-  // const [registrationResult, setRegistrationResult] = React.useState(false);
   const [isInfoTooltipOpen, setIsInfoTooltipOpen] = React.useState(false);
-  // const [userData, setUserData] = React.useState({
-  //   email: "",
-  //   password: "",
-  // });
   const [email, setEmail] = useState("");
   const navigate = useNavigate();
   const [tooltipData, setTooltipData] = useState({ img: "", title: "" });
+  const isOpen =
+    isEditAvatarPopupOpen ||
+    isEditProfilePopupOpen ||
+    isAddPlacePopupOpen ||
+    selectedCard;
 
   useEffect(() => {
     checkToken();
@@ -54,8 +55,6 @@ function App() {
         });
     }
   }, [loggedIn]);
-
-  
 
   const handleEditProfileClick = () => {
     setIsEditProfilePopupOpen(true);
@@ -155,9 +154,9 @@ function App() {
           console.log(err);
         });
     }
-  };
+  }
 
-  function handleRegister( email, password ) {
+  function handleRegister(email, password) {
     console.log("in app-register1", email, password);
     auth
       .register(email, password)
@@ -167,7 +166,6 @@ function App() {
           img: unionOk,
           title: "Вы успешно зарегистрировались!",
         });
-        // setRegistrationResult(true);
         navigate("/sing-in");
       })
       .catch(() => {
@@ -175,46 +173,31 @@ function App() {
           img: unionFalse,
           title: "Что-то пошло не так! Попробуйте ещё раз.",
         });
-        // setRegistrationResult(false);
       })
       .finally(() => {
         setIsInfoTooltipOpen(true);
       });
-  };
+  }
 
-  function handleLogin(email, password ) {
-      console.log("in handleLogin:", email, password);
-      auth
-        .authorize(email, password)
-        .then((res) => {
-          console.log("in handleLogin-authorize:", res.token);
-          localStorage.setItem("token", res.token);
-        })
-        .then(() => {
-          const token = localStorage.getItem('token');
-          console.log('token', token)
-          token &&
-          auth
-            .checkToken(token)
-            .then((res) => {
-              console.log('переход')
-              setEmail(res.data.email);
-              setLoggedIn(true);
-              navigate("/");
-            })
-            .catch((err) => {
-              console.log(err);
-            });
-        })
-        .catch(() => {
-          setTooltipData({
-            img: unionFalse,
-            title: "Что-то пошло не так! Попробуйте ещё раз.",
-          });
-          setIsInfoTooltipOpen(true)
-          // setRegistrationResult(false);
+  function handleLogin(email, password) {
+    console.log("in handleLogin:", email, password);
+    auth
+      .authorize(email, password)
+      .then((res) => {
+        console.log("in handleLogin-authorize:", res.token);
+        localStorage.setItem("token", res.token);
+      })
+      .then(() => {
+        checkToken();
+      })
+      .catch(() => {
+        setTooltipData({
+          img: unionFalse,
+          title: "Что-то пошло не так! Попробуйте ещё раз.",
         });
-    };
+        setIsInfoTooltipOpen(true);
+      });
+  }
 
   const onSignOut = () => {
     localStorage.removeItem("token");
@@ -226,18 +209,27 @@ function App() {
     setIsEditAvatarPopupOpen(false);
     setIsAddPlacePopupOpen(false);
     setSelectedCard({});
-    setIsInfoTooltipOpen(false)
+    setIsInfoTooltipOpen(false);
   };
+
+  useEffect(() => {
+    function closeByEscape(evt) {
+      if (evt.key === "Escape") {
+        closeAllPopups();
+      }
+    }
+    if (isOpen) {
+      document.addEventListener("keydown", closeByEscape);
+      return () => {
+        document.removeEventListener("keydown", closeByEscape);
+      };
+    }
+  }, [isOpen]);
 
   return (
     <CurrentUserContext.Provider value={currentUser}>
       <div className="page">
-        <Header
-          loggedIn={loggedIn}
-          // userData={userData}
-          onSignOut={onSignOut}
-          email={email}
-        />
+        <Header loggedIn={loggedIn} onSignOut={onSignOut} email={email} />
         <Routes>
           <Route
             path="/"
@@ -298,7 +290,6 @@ function App() {
           name="InfoTooltip"
           onClose={closeAllPopups}
           isOpen={isInfoTooltipOpen}
-          // registrationResult={setRegistrationResult}
           title={tooltipData.title}
           img={tooltipData.img}
         />

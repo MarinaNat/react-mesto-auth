@@ -12,9 +12,8 @@ const Register = ({ onRegister }) => {
   function handleSubmit(e) {
     e.preventDefault();
     console.log("in Register-handleSubmit", state);
-    //  const {email, password} = state;
     if (onRegister && state.email && state.password) {
-      onRegister( state.email, state.password );
+      onRegister(state.email, state.password);
     }
     // здесь обработчик регистрации
   }
